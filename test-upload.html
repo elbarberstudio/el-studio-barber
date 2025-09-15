@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test File Upload</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { margin-top: 50px; }
+        .preview { max-width: 200px; margin-top: 20px; display: none; }
+        .progress { margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test File Upload</h1>
+        <input type="file" id="fileInput" accept="image/*">
+        <div class="progress" id="progress">
+            <p>Uploading... <span id="progressText">0%</span></p>
+            <progress id="progressBar" value="0" max="100"></progress>
+        </div>
+        <div id="result"></div>
+        <img id="preview" class="preview" />
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const progressDiv = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const resultDiv = document.getElementById('result');
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', 'test-user-' + Math.random().toString(36).substr(2, 9));
+
+            try {
+                // Show progress
+                progressDiv.style.display = 'block';
+                progressBar.value = 0;
+                progressText.textContent = '0%';
+                resultDiv.textContent = 'Uploading...';
+                resultDiv.style.color = '#333';
+
+                // Make the request
+                const response = await fetch('/api/upload-profile-picture', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // Handle response
+                let data;
+                try {
+                    const text = await response.text();
+                    data = text ? JSON.parse(text) : {};
+                } catch (e) {
+                    throw new Error('Invalid JSON response: ' + e.message);
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                resultDiv.textContent = `Upload successful! URL: ${data.url}`;
+                resultDiv.style.color = 'green';
+                
+                // Show the uploaded image
+                preview.src = data.url;
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.style.color = 'red';
+            } finally {
+                progressDiv.style.display = 'none';
+            }
+        });
+
+        // Simulate progress (since we can't track upload progress with fetch + FormData)
+        function updateProgress(percent) {
+            progressBar.value = percent;
+            progressText.textContent = `${percent}%`;
+        }
+
+        // Simulate progress for demo purposes
+        setInterval(() => {
+            if (progressDiv.style.display === 'block') {
+                const current = parseInt(progressBar.value);
+                if (current < 90) {
+                    updateProgress(current + 10);
+                }
+            }
+        }, 300);
+    </script>
+</body>
+</html>

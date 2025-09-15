@@ -1,0 +1,18 @@
+{
+  "name": "elstudio-barber-scripts",
+  "version": "1.0.0",
+  "description": "Setup scripts for El Studio Barber",
+  "main": "setup-storage.js",
+  "scripts": {
+    "setup-storage": "ts-node setup-storage.ts",
+    "check-storage": "ts-node check-storage.ts",
+    "verify-storage": "ts-node verify-storage.ts",
+    "setup-courses": "ts-node setup-courses-bucket.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2"
+  }
+}
