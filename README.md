@@ -1,4 +1,4 @@
-# Firebase Studio
+#El Studio Barberia
 
 This is a NextJS starter in Firebase Studio.
 
